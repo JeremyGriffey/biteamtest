@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from dateutil import tz
 import dateutil.parser
 
-#NewCommentForGit
+#New Comment For Git - I don't know why Chad doesn't like spaces
 
 def RefreshZendeskBrands():
 
@@ -108,3 +108,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# This line doesn't cause a collision
