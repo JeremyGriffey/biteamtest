@@ -17,10 +17,51 @@ from datetime import datetime, timezone
 from dateutil import tz
 import dateutil.parser
 
+# define variables for self and default values
+myNameIs = os.path.basename(sys.argv[0])
+pidNum = str(os.getpid())
 
-#New Comment For Git
+# define variables for related file names
+thisMonth = datetime.now().strftime("%Y%m")
+baseDirName = "." if os.path.dirname(sys.argv[0]) == "" else os.path.dirname(sys.argv[0])
+baseFileName = baseDirName + os.path.sep + myNameIs.split(".")[0] 
+parmFileName = baseFileName + ".ini"
+logFileName = baseFileName + "." + thisMonth + ".log"
 
-def RefreshZendeskBrands():
+class invalidLogLevel(Exception): pass
+class invalidAPIResponse(Exception): pass
+
+def logmsg(msgtxt, msgtype):
+    #
+    # DEBUG is used for helping a developer know what's happening during execution of the code.  This could even include logging variable values.
+    # INFO is used for normal execution information: This step started.  This step completed. This file was successfully loaded.  etc.
+    # WARNING is used for errors that the program knows how to handle.
+    # ERROR is used for errors that the program does not expect and will cause the program to halt.
+    #
+    switcher = {
+        0: "DEBUG: ",
+        1: "INFO: ",
+        2: "WARNING: ",
+        3: "ERROR: "
+    }       
+    if msgtype >= logLevel:
+        logdate=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        frmtdMsgTxt=logdate + " - [" + myNameIs + ":" + pidNum + "] " + switcher.get(msgtype) + msgtxt
+        if screenIt: print(frmtdMsgTxt)
+        if logIt: logfile.write(frmtdMsgTxt + os.linesep)
+
+def getParm(fileSpec,parmSectionName,parmName):
+    configp = configparser.ConfigParser()
+    configp.read(fileSpec)
+    parmValue = configp.get(parmSectionName,parmName)
+    return parmValue
+
+try:
+
+    screenIt = True
+    logIt = True
+
+    logLevel = int(getParm(parmFileName,'standardScriptParms','logLevel'))
 
     #Parameters for Zendesk API connection need to be removed from script and placed into an ini file
     url = 'https://lwdsupport.tn.gov/api/v2/brands.json'
@@ -104,10 +145,12 @@ def RefreshZendeskBrands():
     #Delete data from staging table
     engine.execute(text('''EXEC dbo.usp_DeleteZDBrandsTable''').execution_options(autocommit=True))
 
-def main():
-    RefreshZendeskBrands()
+except invalidLogLevel:
+    logLevel = 0
+    logmsg ("Invalid log level set.  Resetting to 0.",0)
+    return
 
-if __name__ == '__main__':
-    main()
-
-# This line doesn't cause a collision
+finally:
+    logfile.close
+    conn.close()
+    del conn
