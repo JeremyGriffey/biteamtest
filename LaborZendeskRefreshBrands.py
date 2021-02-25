@@ -18,8 +18,6 @@ from dateutil import tz
 import dateutil.parser
 
 
-#New Comment For Git
-
 def RefreshZendeskBrands():
 
     #Parameters for Zendesk API connection need to be removed from script and placed into an ini file
@@ -36,7 +34,7 @@ def RefreshZendeskBrands():
             exit()
 
     #Create database connection
-    conn = urllib.parse.quote_plus("DRIVER={ODBC Driver 17 for SQL Server};SERVER=CG01NDCWB00007;DATABASE=CG_UI_DataWH;Trusted_Connection=yes;")
+    conn = urllib.parse.quote_plus("DRIVER={ODBC Driver 17 for SQL Server};SERVER=CG01SDCWB00005;DATABASE=Zendesk;UID=ZNDTLD;PWD=L@b0rDTld21;")
     engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(conn))
 
     #Delete data from staging table before loading API data into staging table
@@ -110,4 +108,3 @@ def main():
 if __name__ == '__main__':
     main()
 
-# This line doesn't cause a collision
